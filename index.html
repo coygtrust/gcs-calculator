@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+< lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#123451">
+  <title>GCS Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<>
+  <header>
+    <div class="brand">MEDICAL TOOLS</div>
+    <h1>Glasgow Coma Scale</h1>
+    <p>Clinical neurological assessment</p>
+  </header>
+
+  <main>
+    <section class="result">
+      <span>TOTAL GCS SCORE</span>
+      <div id="total">— / 15</div>
+      <p id="interpretation">Select all three responses</p>
+      <div id="breakdown">E — &nbsp; V — &nbsp; M —</div>
+    </section>
+
+    <section class="assessment">
+      <h2>1. Eye Opening (E)</h2>
+      <div id="eye" class="options">
+        <button data-score="4">4 · Spontaneous</button>
+        <button data-score="3">3 · To sound</button>
+        <button data-score="2">2 · To pressure</button>
+        <button data-score="1">1 · None</button>
+        <button data-score="NT">NT · Not testable</button>
+      </div>
+    </section>
+
+    <section class="assessment">
+      <h2>2. Verbal Response (V)</h2>
+      <div id="verbal" class="options">
+        <button data-score="5">5 · Oriented</button>
+        <button data-score="4">4 · Confused</button>
+        <button data-score="3">3 · Words</button>
+        <button data-score="2">2 · Sounds</button>
+        <button data-score="1">1 · None</button>
+        <button data-score="NT">NT · Not testable</button>
+      </div>
+    </section>
+
+    <section class="assessment">
+      <h2>3. Motor Response (M)</h2>
+      <div id="motor" class="options">
+  
+<button data-score="6">6 · Obeys commands</button>
+<button data-score="5">5 · Localizes pressure</button>
+<button data-score="4">4 · Normal flexion (withdrawal)</button>
+<button data-score="3">3 · Abnormal flexion</button>
+<button data-score="2">2 · Extension</button>
+<button data-score="1">1 · No response</button>
+        <button data-score="NT">NT · Not testable</button>
+
+      </div>
+    </section>
+
+<section class="assessment reference">
+  <h2>GCS Clinical Reference</h2>
+
+  <h3>Eye Opening (E)</h3>
+  <p><b>E4</b> – Spontaneous</p>
+  <p><b>E3</b> – To sound</p>
+  <p><b>E2</b> – To pressure</p>
+  <p><b>E1</b> – None</p>
+
+  <h3>Verbal Response (V)</h3>
+  <p><b>V5</b> – Orientated</p>
+  <p><b>V4</b> – Confused</p>
+  <p><b>V3</b> – Words</p>
+  <p><b>V2</b> – Sounds</p>
+  <p><b>V1</b> – None</p>
+
+  <h3>Motor Response (M)</h3>
+  <p><b>M6</b> – Obeys commands</p>
+  <p><b>M5</b> – Localising</p>
+  <p><b>M4</b> – Normal flexion</p>
+  <p><b>M3</b> – Abnormal flexion</p>
+  <p><b>M2</b> – Extension</p>
+  <p><b>M1</b> – None</p>
+
+  <h3>Clinical Assessment</h3>
+  <p><b>CHECK:</b> Identify factors interfering with assessment.</p>
+  <p><b>OBSERVE:</b> Eye opening, speech and movements.</p>
+  <p><b>STIMULATE:</b> Use sound and appropriate physical pressure when required.</p>
+  <p><b>RATE:</b> Record the best response observed.</p>
+
+  <h3>Not Testable (NT)</h3>
+  <p>Use NT when a component cannot be assessed because of an interfering factor. Document the reason. Do not assign a score of 1 or include NT in a numerical total.</p>
+</section>
+
+    <button id="reset" class="reset">Reset assessment</button>
+    
+<section class="assessment">
+  <h2>Clinical Observations</h2>
+  <textarea
+    id="observations"
+    placeholder="Optional: Enter relevant clinical observations..."
+    rows="4">
+  </textarea>
+  
+<section class="assessment">
+  <h2>Reason for Not Testable (NT)</h2>
+  <textarea
+    id="ntReason"
+    placeholder="Example: Verbal response not testable due to endotracheal intubation..."
+    rows="3">
+  </textarea>
+</section>
+
+</section>
+
+    <button id="share" class="share">
+  Share GCS Assessment
+    </button>
+
+    <p class="disclaimer">
+      Clinical decision-support aid only. Verify findings clinically.
+      Record individual components. Do not use the total score alone
+      to determine clinical management.
+    </p>
+  </main>
+
+
+<script>
+const scores = {
+  eye: null,
+  verbal: null,
+  motor: null
+};
+
+function updateGCS() {
+  const { eye, verbal, motor } = scores;
+  const values = [eye, verbal, motor];
+
+  document.getElementById("breakdown").textContent =
+    `E ${eye ?? "—"} + V ${verbal ?? "—"} + M ${motor ?? "—"}`;
+
+  if (values.includes(null)) {
+    document.getElementById("total").textContent = "— / 15";
+    document.getElementById("interpretation").textContent =
+      "Complete all three components";
+    return;
+  }
+
+  if (values.includes("NT")) {
+    document.getElementById("total").textContent = "Not calculable";
+    document.getElementById("interpretation").textContent =
+      "One or more components are not testable";
+    return;
+  }
+
+  const total = eye + verbal + motor;
+
+  document.getElementById("total").textContent = total + " / 15";
+  document.getElementById("interpretation").textContent =
+    "Assessment complete";
+}
+
+document.querySelectorAll(".options").forEach(group => {
+  group.querySelectorAll("button").forEach(button => {
+    button.addEventListener("click", () => {
+      const category = group.id;
+      const raw = button.dataset.score;
+
+      scores[category] = raw === "NT" ? "NT" : Number(raw);
+
+      group.querySelectorAll("button").forEach(b =>
+        b.classList.remove("selected")
+      );
+
+      button.classList.add("selected");
+      updateGCS();
+    });
+  });
+});
+
+
+document.getElementById("reset").addEventListener("click", () => {
+  scores.eye = null;
+  scores.verbal = null;
+  scores.motor = null;
+
+  document.querySelectorAll(".options button").forEach(button => {
+    button.classList.remove("selected");
+  });
+
+  document.getElementById("observations").value = "";
+  document.getElementById("ntReason").value = "";
+
+  updateGCS();
+});
+
+
+document.getElementById("share").addEventListener("click", async () => {
+  const {eye, verbal, motor} = scores;
+
+  if (eye === null || verbal === null || motor === null) {
+    alert("Complete all three GCS components first.");
+    return;
+  }
+
+  const labels = {
+    eye: {4:"Spontaneous",3:"To sound",2:"To pressure",1:"No response"},
+    verbal: {5:"Oriented",4:"Confused",3:"Words",2:"Sounds",1:"No response"},
+    motor: {6:"Obeys commands",5:"Localizes pressure",4:"Withdraws from pressure",3:"Abnormal flexion",2:"Extension",1:"No response"}
+  };
+
+  const format = (score, category) =>
+    score === "NT" ? "NT - Not testable" :
+    `${score} - ${labels[category][score]}`;
+
+  const total = [eye, verbal, motor].includes("NT")
+    ? "Not calculable"
+    : `${eye + verbal + motor} / 15`;
+
+  const date = new Date().toLocaleString();
+
+  const observations =
+    document.getElementById("observations").value.trim();
+  const ntReason =
+  document.getElementById("ntReason").value.trim();
+
+  const report =
+    "GLASGOW COMA SCALE - ADULT\n\n" +
+    "Date/time: " + date + "\n\n" +
+    "Eye: E" + format(eye, "eye") + "\n" +
+    "Verbal: V" + format(verbal, "verbal") + "\n" +
+    "Motor: M" + format(motor, "motor") + "\n\n" +
+    "TOTAL: " + total + "\n\n" +
+    "Clinical observations: " +
+(observations || "Not provided") + "\n" +
+"NT reason: " +
+(ntReason || "Not provided") + "\n\n" +
+    "Clinical assessment must be independently verified.";
+
+  if (navigator.share) {
+    try {
+      await navigator.share({text: report});
+    } catch (error) {
+      if (error.name !== "AbortError") alert(report);
+    }
+  } else {
+    alert(report);
+  }
+});
+updateGCS();
+</script>
+</body>
+</html>
